@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { InputValues, OutputValues } from "@google-labs/graph-runner";
+import type { InputValues, OutputValues } from "@google-labs/breadboard";
 import { encode } from 'gpt-3-encoder';
-import { Configuration, OpenAIApi } from "openai";
+import { OpenAI } from "openai";
 
 export type GenerateEmbeddingOutputs = OutputValues & {
   embedding: {};
@@ -46,22 +46,20 @@ export default async (inputs: InputValues): Promise<GenerateEmbeddingOutputs> =>
 
   if (inputTokenCount >= embeddingModelContextSizes[model]) throw new Error(`Embedding input needs to shorter than the model's max token count of ${embeddingModelContextSizes[model]} tokens`);
 
-  const configuration = new Configuration({
-    apiKey: values.OPENAI_API_KEY
-  });
-
   let output;
 
   try {
 
-    const openai = new OpenAIApi(configuration);
+    const openai = new OpenAI({
+      apiKey: values.OPENAI_API_KEY
+    });
 
-    const response = await openai.createEmbedding({
+    const response = await openai.embeddings.create({
       model: model,
       input: values.input,
     });
 
-    output = response.data.data;
+    output = response.data;
 
   } catch (error: any) {
     if (error.response) {
@@ -73,5 +71,5 @@ export default async (inputs: InputValues): Promise<GenerateEmbeddingOutputs> =>
     output = "error"
   }
 
-  return { embedding: output };
+  return { embedding: <any>output };
 };

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { InputValues, OutputValues } from "@google-labs/graph-runner";
+import { InputValues, OutputValues } from "@google-labs/breadboard";
 import { encode } from 'gpt-3-encoder';
-import { Configuration, OpenAIApi } from "openai";
+import { OpenAI} from "openai";
 
 export type GenerateCompletionOutputs = OutputValues & {
   completion: string;
@@ -50,23 +50,21 @@ export default async (inputs: InputValues): Promise<GenerateCompletionOutputs> =
 
   if (maxTokens <= 0) throw new Error(`Text completion requires 'text' input to be shorter than the model's max token count of ${modelTokenCounts[model]} tokens`);
 
-  const configuration = new Configuration({
-    apiKey: values.OPENAI_API_KEY
-  });
-
   let output = "";
 
   try {
 
-    const openai = new OpenAIApi(configuration);
+    const openai = new OpenAI({
+      apiKey: values.OPENAI_API_KEY
+    });
 
-    const response = await openai.createCompletion({
+    const response = await openai.completions.create({
       model: model,
       prompt: values.text,
       max_tokens: maxTokens,
     });
 
-    output = (response.data.choices.length > 0) ? response.data.choices[0].text || "No data" : "No data";
+    output = (response.choices.length > 0) ? response.choices[0].text || "No data" : "No data";
   } catch (error: any) {
     if (error.response) {
       console.log(error.response.status);

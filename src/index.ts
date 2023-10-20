@@ -4,19 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  NodeHandlers
-} from "@google-labs/graph-runner";
 import type {
   BreadboardNode,
   Kit,
   NodeFactory,
+  NodeHandlers,
   OptionalIdConfiguration,
 } from "@google-labs/breadboard";
 
-import generateCompletion from "./nodes/generate-completion.js";
-import generateEmbedding from "./nodes/generate-embedding.js";
-
+import generateCompletion, { GenerateCompletionInputs, GenerateCompletionOutputs } from "./nodes/generate-completion.js";
+import generateEmbedding, { GenerateEmbeddingInputs, GenerateEmbeddingOutputs } from "./nodes/generate-embedding.js";
+import { config } from "process";
 
 const coreHandlers = {
   generateCompletion,
@@ -40,18 +38,18 @@ export class OpenAI implements Kit {
     this.#handlers = coreHandlers;
   }
 
-  generateCompletion(
+  generateCompletion<In = GenerateCompletionInputs, Out = GenerateCompletionOutputs>(
     config: OptionalIdConfiguration = {}
-  ): BreadboardNode {
+  ): BreadboardNode<In, Out>  {
     const { $id, ...rest } = config;
-    return this.#nodeFactory("generateCompletion", { ...rest }, $id);
+    return this.#nodeFactory.create(this, "generateCompletion", { ...rest }, $id);
   }
 
-  generateEmbedding(
+  generateEmbedding<In = GenerateEmbeddingInputs, Out = GenerateEmbeddingOutputs>(
     config: OptionalIdConfiguration = {}
-  ): BreadboardNode {
+  ): BreadboardNode<In, Out>  {
     const { $id, ...rest } = config;
-    return this.#nodeFactory("generateEmbedding", { ...rest }, $id);
+    return this.#nodeFactory.create(this, "generateEmbedding", { ...rest }, $id);
   }
 }
 
